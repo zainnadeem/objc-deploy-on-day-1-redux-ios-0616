@@ -46,7 +46,9 @@
 
 -(void)viewDidLoad
 {
+    [super viewWillAppear:YES];
     [super viewDidLoad];
+    
 
     for(FISBoardSpaceView *boardSpace in self.boardSpaces) {
         [boardSpace addTarget:self action:@selector(boardSpaceTapped:) forControlEvents:UIControlEventTouchUpInside];
@@ -58,6 +60,7 @@
 
 -(void)startGame
 {
+    
     if(self.xPlayerIsAI) {
         self.xPlayer = [[FISComputerPlayer alloc] init];
     }
@@ -124,6 +127,7 @@
     self.oPlayerIconLabel.attributedText = [self centeredAttributedStringForIcon:[FAKIonIcons androidRadioButtonOffIconWithSize:16]];
     self.oPlayerAIIconLabel.attributedText = [self attributedStringForAIIconForPlayer:self.oPlayer];
     self.oPlayerWinsLabel.text = [NSString stringWithFormat:@"%lu win%@", self.game.oPlayerWinCount, self.game.oPlayerWinCount == 1 ? @"" : @"s"];
+
 }
 
 -(void)handleTurn
@@ -236,6 +240,26 @@
 -(BOOL)prefersStatusBarHidden
 {
     return YES;
+}
+
+-(void)viewWillAppear:(BOOL)animated{
+   
+    NSUserDefaults *updateWins = [NSUserDefaults standardUserDefaults];
+    NSInteger oDefaultValue = [updateWins integerForKey:@"saveOPlayerWins"];
+    NSInteger xDefaultValue = [updateWins integerForKey:@"saveXPlayerWins"];
+    
+    _game.oPlayerWinCount = oDefaultValue;
+    _game.xPlayerWinCount = xDefaultValue;
+     [self setUpPlayerDisplays];
+    [super viewWillAppear:YES];
+}
+
+-(void)viewWillDisappear:(BOOL)animated{
+    [[NSUserDefaults standardUserDefaults] setInteger:_game.oPlayerWinCount forKey:@"saveOPlayerWins"];
+    [[NSUserDefaults standardUserDefaults] setInteger:_game.xPlayerWinCount forKey:@"saveXPlayerWins"];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+     [super viewWillDisappear:YES];
+    
 }
 
 @end
